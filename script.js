@@ -1,93 +1,62 @@
-// Activity Logs Mock Data
-const onboardingData = [
-  {
-    id: 1,
-    name: "Ahmere Tech Solutions",
-    email: "contact@ahmere.com",
-    phone: "+923009876543",
-    status: "Completed",
-    time: "Today, 02:15 PM"
-  },
-  {
-    id: 2,
-    name: "Fatima Graphics Studio",
-    email: "fatima@designhouse.pk",
-    phone: "+923215554321",
-    status: "Pending (Reminder Sent)",
-    time: "Yesterday, 10:00 AM"
-  }
-];
-
-// Render Logs to UI
-function renderLogs() {
-  const container = document.getElementById('activityContainer');
-  container.innerHTML = '';
-
-  onboardingData.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'activity-card';
-    
-    const isCompleted = item.status === "Completed";
-    const statusClass = isCompleted ? "completed" : "pending";
-
-    card.innerHTML = `
-      <div class="client-meta">
-        <h3>${escapeHtml(item.name)}</h3>
-        <p>Email: ${escapeHtml(item.email)} • WhatsApp: ${escapeHtml(item.phone)}</p>
-        <p style="font-size: 11px; margin-top: 4px; color: #6b7280;">Triggered: ${item.time}</p>
-      </div>
-      <div>
-        <span class="status-badge ${statusClass}">${item.status}</span>
-      </div>
-    `;
-
-    container.appendChild(card);
-  });
-}
-
-function escapeHtml(str) {
-  return str.replace(/[&<>"']/g, function(m) {
-    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-  });
-}
-
-// Modal Control
-const modalOverlay = document.getElementById('modalOverlay');
-document.getElementById('openModalBtn').addEventListener('click', () => modalOverlay.classList.add('active'));
-document.getElementById('closeModalBtn').addEventListener('click', () => modalOverlay.classList.remove('active'));
-
-// Handle Form Submission & Triggering n8n Webhook
-document.getElementById('onboardingForm').addEventListener('submit', (e) => {
+document.getElementById('onboardingForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const name = document.getElementById('clientName').value;
   const email = document.getElementById('clientEmail').value;
   const phone = document.getElementById('clientPhone').value;
 
-  const newItem = {
-    id: Date.now(),
-    name: name,
-    email: email,
-    phone: phone,
-    status: "Pending (Form Dispatched)",
-    time: "Just Now"
-  };
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  const originalBtnText = submitBtn.innerText;
+  submitBtn.innerText = "Dispatching...";
+  submitBtn.disabled = true;
 
-  onboardingData.unshift(newItem);
-  renderLogs();
+  const webhookUrl = "http://localhost:5678/webhook-test/trigger-client-onboard";
 
-  // Update Counters
-  const totalCount = document.getElementById('totalSentCount');
-  const pendingCount = document.getElementById('pendingCount');
-  totalCount.innerText = parseInt(totalCount.innerText) + 1;
-  pendingCount.innerText = parseInt(pendingCount.innerText) + 1;
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        clientName: name,
+        clientEmail: email,
+        clientPhone: phone,
+        timestamp: new Date().toISOString()
+      })
+    });
 
-  // Reset & Close Modal
-  document.getElementById('onboardingForm').reset();
-  modalOverlay.classList.remove('active');
+    if (response.ok) {
+      const newItem = {
+        id: Date.now(),
+        name: name,
+        email: email,
+        phone: phone,
+        status: "Pending (Form Dispatched)",
+        time: "Just Now"
+      };
 
-  alert(`Onboarding Form link dispatched via Email & WhatsApp to ${name}!`);
+      onboardingData.unshift(newItem);
+      renderLogs();
+
+      const totalCount = document.getElementById('totalSentCount');
+      const pendingCount = document.getElementById('pendingCount');
+      totalCount.innerText = parseInt(totalCount.innerText) + 1;
+      pendingCount.innerText = parseInt(pendingCount.innerText) + 1;
+
+      document.getElementById('onboardingForm').reset();
+      modalOverlay.classList.remove('active');
+
+      alert(`Onboarding Form link dispatched via Email & WhatsApp to ${name}!`);
+    } else {
+      alert("Failed to send data to n8n webhook. Status: " + response.status);
+    }
+
+  } catch (error) {
+    console.error("Webhook Error:", error);
+    alert("Error connecting to n8n Webhook. Please check console.");
+  } finally {
+    submitBtn.innerText = originalBtnText;
+    submitBtn.disabled = false;
+  }
 });
-
-// Initial Render
-renderLogs();
