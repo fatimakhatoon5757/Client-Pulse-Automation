@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Onboarding Automation Hub</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="logo-icon">🚀</span>
+        <h2>OnboardFlow</h2>
+      </div>
+      <nav class="nav-menu">
+        <a href="#" class="nav-link active"><span>📊</span> Dashboard</a>
+        <a href="#" class="nav-link"><span>👥</span> Active Clients</a>
+        <a href="#" class="nav-link"><span>📬</span> Forms Sent</a>
+        <a href="#" class="nav-link"><span>⚙️</span> n8n Webhooks</a>
+      </nav>
+      <div class="system-status">
+        <span class="pulse-dot"></span>
+        <span>Automation Engine Live</span>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="top-header">
+        <div>
+          <h1>Client Onboarding Hub</h1>
+          <p>Automated Dual-Channel (Email & WhatsApp) Client Kickoff & Form Tracking System</p>
+        </div>
+        <button class="btn-primary" id="openModalBtn">+ Send New Onboarding Form</button>
+      </header>
+
+      <section class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-title">Total Forms Sent</span>
+          <span class="stat-value" id="totalSentCount">18</span>
+        </div>
+        <div class="stat-card success">
+          <span class="stat-title">Completed Onboardings</span>
+          <span class="stat-value" id="completedCount">14</span>
+        </div>
+        <div class="stat-card warning">
+          <span class="stat-title">Pending / Reminders</span>
+          <span class="stat-value" id="pendingCount">4</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-title">Time Saved This Month</span>
+          <span class="stat-value">32 hrs</span>
+        </div>
+      </section>
+
+      <section class="feed-section">
+        <div class="section-header">
+          <h2>Live Onboarding Activity Log</h2>
+          <span class="badge">Email + WhatsApp Sync</span>
+        </div>
+        <div class="activity-list" id="activityContainer">
+          <!-- Dynamic logs rendered by script.js -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal for Sending New Onboarding -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Trigger New Client Onboarding</h3>
+        <button class="close-btn" id="closeModalBtn">&times;</button>
+      </div>
+      <form id="onboardingForm">
+        <div class="form-group">
+          <label>Client Name</label>
+          <input type="text" id="clientName" placeholder="e.g. Sara Khan" required>
+        </div>
+        <div class="form-group">
+          <label>Client Email</label>
+          <input type="email" id="clientEmail" placeholder="e.g. sara@clientdomain.com" required>
+        </div>
+        <div class="form-group">
+          <label>Client WhatsApp Number</label>
+          <input type="text" id="clientPhone" placeholder="e.g. +923001234567" required>
+        </div>
+        <button type="submit" class="btn-primary full-width">Dispatch Email & WhatsApp Link</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
